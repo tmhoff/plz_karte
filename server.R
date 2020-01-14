@@ -47,6 +47,9 @@ server <- function(input, output) {
       file      <- sf::st_read("data/plz-3stellig.shp")
     }
     
+    else if(max(nchar(data$plz))=="5"){
+      file      <- sf::st_read("data/plz-gebiete.shp")
+    }
     #merge Polygen-Daten und Daten
     file      <- merge(file, data, by = "plz")
     
