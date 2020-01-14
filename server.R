@@ -11,6 +11,7 @@ server <- function(input, output) {
   observeEvent(input$file1, {
     
     # Derzeit muss dieser Block noch oben sthen, damit die Karte n a c h dem Upload neu erstellt wird
+    # Teständerung
     data <<- data.frame(read.csv2(input$file1$datapath))
     replaceData(proxy, data, resetPaging = FALSE)  # Quelle: https://github.com/rstudio/DT/pull/480, wenn man eine ganze Zeile löscht, gibt es noch nen Error
   })
