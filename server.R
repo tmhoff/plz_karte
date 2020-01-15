@@ -19,40 +19,86 @@ server <- function(input, output) {
   data <- data.frame(plz = 0:9, N = c(6530447, 6807966, 8529559, 8765684, 10091905, 9048173, 7379577, 8516449, 7660168, 6532345))
 
   output$karte <- renderPlot({
+  
     
     input$daten_cell_edit # Hiermit wird die Karte neu gerendert, wenn die Tabelle editiert wird
     input$file1 # Hiermit wird die Karte neu gerendert, wenn Daten hochgeladen werden
+    
+    #Wenn alle PLZ Inputs auf gleicher Ebene
+    if(uniqueN(nchar(data$plz))==1){
+      if(max(nchar(data$plz))==1){
+      filexyz      <- sf::st_read("data/plz-1stellig.shp")
+      }
+      else if(max(nchar(data$plz))==2){
+        filexyz      <- sf::st_read("data/plz-2stellig.shp")
+      }
+      else if(max(nchar(data$plz))==3){
+        filexyz      <- sf::st_read("data/plz-3stellig.shp")
+      }
+
+      else if(max(nchar(data$plz))==5){
+        filexyz      <- sf::st_read("data/plz-gebiete.shp")
+      }
+      filexyz      <- merge(filexyz, data, by = "plz")#merge Polygen-Daten und Daten
+    }else if(uniqueN(nchar(data$plz))>1){#Wenn PLZ Inputs unterschiedliche Stellen haben
+      zeichen <- data.table(stellen=as.character(unique(nchar(data$plz))))
+        if(nrow(zeichen[stellen==1])!=0){
+          file_load      <- sf::st_read("data/plz-1stellig.shp")
+          file_load      <- merge(file_load, data, by = "plz", all=FALSE)
+          if(exists("filexyz")){
+            filexyz <- rbind(filexyz,file_load)
+          }else if(!exists("filexyz")){
+            filexyz <- file_load
+          }
+        }        else if(nrow(zeichen[stellen==2])!=0){
+          file_load      <- sf::st_read("data/plz-2stellig.shp")
+          file_load      <- merge(file_load, data, by = "plz", all=FALSE)
+          if(exists("filexyz")){
+            filexyz <- rbind(filexyz,file_load)
+          }else if(!exists("filexyz")){
+            filexyz <- file_load
+          }
+        }      else if(nrow(zeichen[stellen==3])!=0){
+        file_load      <- sf::st_read("data/plz-3stellig.shp")
+        file_load      <- merge(file_load, data, by = "plz", all=FALSE)
+        if(exists("filexyz")){
+          filexyz <- rbind(filexyz,file_load)
+        }else if(!exists("filexyz")){
+          filexyz <- file_load
+        }
+      }      else if(nrow(zeichen[stellen==5])!=0){
+        file_load      <- sf::st_read("data/plz-gebiete.shp")
+        file_load      <- merge(file_load, data, by = "plz", all=FALSE)
+        if(exists("filexyz")){
+          filexyz <- rbind(filexyz,file_load)
+        }else if(!exists("filexyz")){
+          filexyz <- file_load
+        }
+      }
+    }
    
-    # zeichen <- unique(nchar(data$plz))
-    # if(zeichen=="1"){
-    #   file_load      <- sf::st_read("data/plz-1stellig.shp")
-    #   file      <- merge(file_load, data, by = "plz", all=FALSE)
-    # }
-    # if(zeichen=="2" & nrow(file)!=0){
-    #   file_load      <- sf::st_read("data/plz-2stellig.shp")
-    #   file      <- merge(file_load, file, by = "plz", all=FALSE)
-    # }
+#Usprünglicher Code  
     # else if(zeichen=="2" & nrow(file)==0){
     #   file_load      <- sf::st_read("data/plz-2stellig.shp")
     #   file      <- merge(file_load, data, by = "plz")
     # }
-    
-    if(max(nchar(data$plz))=="1"){
-    file      <- sf::st_read("data/plz-1stellig.shp")
-    }
-    else if(max(nchar(data$plz))=="2"){
-      file      <- sf::st_read("data/plz-2stellig.shp")
-    }
-    else if(max(nchar(data$plz))=="3"){
-      file      <- sf::st_read("data/plz-3stellig.shp")
-    }
-    
-    else if(max(nchar(data$plz))=="5"){
-      file      <- sf::st_read("data/plz-gebiete.shp")
-    }
-    #merge Polygen-Daten und Daten
-    file      <- merge(file, data, by = "plz")
-    
+    # 
+    # if(max(nchar(data$plz))=="1"){
+    # file      <- sf::st_read("data/plz-1stellig.shp")
+    # }
+    # else if(max(nchar(data$plz))=="2"){
+    #   file      <- sf::st_read("data/plz-2stellig.shp")
+    # }
+    # else if(max(nchar(data$plz))=="3"){
+    #   file      <- sf::st_read("data/plz-3stellig.shp")
+    # }
+    # 
+    # else if(max(nchar(data$plz))=="5"){
+    #   file      <- sf::st_read("data/plz-gebiete.shp")
+    # }
+    # #merge Polygen-Daten und Daten
+    # file      <- merge(file, data, by = "plz")
+    # 
     
     #Farbe
     if(input$color_choice=="blau"){
@@ -83,9 +129,9 @@ server <- function(input, output) {
       
     
     #Karte generieren
-    file %>%
+    filexyz %>%
       ggplot() + 
-      geom_sf(data = file) + 
+      geom_sf(data = filexyz) + 
       geom_sf(aes(fill = N)) + 
       scale_fill_viridis("N", option = color_karte, direction = -1) + 
       theme_karte + 
