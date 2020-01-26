@@ -1,7 +1,7 @@
 
 
 stats <- readRDS("data/available_stats.RDS")
-stats <- stats[1:10]
+stats <- stats[1:10, ]
 
 
 fluidPage(

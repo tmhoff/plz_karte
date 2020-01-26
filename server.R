@@ -32,9 +32,10 @@ server <- function(input, output) {
   map_data   <- reactiveVal(mapdata)
   
   api_data <- reactive({
-    
+    print("api_data")
+
     print(input$api_jahr)
-    
+
     if (input$api_stat != "keine"){
       apidata <- as.data.frame(dg_call(nuts_nr = 1, stat_name = input$api_stat))
       print("Hallo")
@@ -44,17 +45,24 @@ server <- function(input, output) {
       apidata <- data.frame(id = character(), year = numeric(), value = numeric())
       return(apidata)
     }
-    
+
   })
   
   possible_years <- reactive({
-    
+    print("possible_years")
+
     apidata <- api_data()
-    unique(apidata$year)
-    
+    if (nrow(apidata) == 0){
+      return(unique(apidata$year))
+    } else {
+      return(c("2020"))
+    }
+
+
   })
   
   output$ui <- renderUI({
+    print("output$ui")
     selectInput("api_jahr", "Jahr auswählen:",
                 choices=possible_years())
   })
