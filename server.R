@@ -1,5 +1,4 @@
 #https://www.suche-postleitzahl.org/downloads 
-#library(data.table)
 library(sf)
 library(dplyr)
 library(ggplot2)
@@ -7,155 +6,229 @@ library(viridis)
 library(shiny)
 library(DT)
 
+options(scipen=10000)
+
+tabledata2     <- data.frame(plz = as.character(0:9), value = c(6530447, 6807966, 8529559, 8765684, 10091905, 9048173, 7379577, 8516449, 7660168, 6532345),
+                          stringsAsFactors = FALSE) # Hat stringsAsFactors = TRUE als Default irgendwann jemals Sinn ergeben?
+tabledata      <- data.frame(ags = as.character(1:16), value = runif(16),
+                            stringsAsFactors = FALSE) # Hat stringsAsFactors = TRUE als Default irgendwann jemals Sinn ergeben?
+tabledata$ags <- stringr::str_pad(tabledata$ags, width = 2, side = "left", pad = "0")
+plz12345_p1      <- readRDS("data/plz_data_gesamt_p1.RDS") # als 2 Parts sind es unter 100mb mal sehen ob github es akzeptiert
+plz12345_p2      <- readRDS("data/plz_data_gesamt_p2.RDS")
+plz12345         <- rbind(plz12345_p1, plz12345_p2)
+
+ags1          <- readRDS("data/ags_bundeslaender.RDS")
+sample_plzs   <- c(plz12345$plz, rep(plz12345$plz, 25))
+
+mapdata2       <- merge(plz12345, tabledata2, by = "plz")
+mapdata        <- merge(ags1, tabledata, by = "ags")
+
 server <- function(input, output) {
   
-  observeEvent(input$file1, {
+  table_data <- reactiveVal(tabledata)
+  # poly_data  <- reactiveVal(ags1)
+  map_data   <- reactiveVal(mapdata)
+  
+  poly_data <- reactive({
+    print("poly_data")
     
-    # Derzeit muss dieser Block noch oben sthen, damit die Karte n a c h dem Upload neu erstellt wird
-    data <<- data.frame(read.csv2(input$file1$datapath))
-    replaceData(proxy, data, resetPaging = FALSE)  # Quelle: https://github.com/rstudio/DT/pull/480, wenn man eine ganze Zeile löscht, gibt es noch nen Error
+    data <- table_data()
+    id   <- names(data)[1]
+
+    if (id == "plz"){
+      return(plz12345)
+    }
+    if (id == "ags"){
+      return(ags1)
+    }
+  })
+
+  observeEvent(input$file1, {
+    print("input$file1")
+    
+    data     <- data.frame(read.csv2(input$file1$datapath), stringsAsFactors = FALSE)
+    data     <- data[!is.na(data[, 1]), ]
+    id       <- names(data)[1]   
+    
+    if (id == "plz"){
+      data$plz <- as.character(data$plz)
+    }
+    if (id == "ags"){
+      data$ags <- as.character(data$ags)
+    }
+    
+    names(data)[2] <- "value"
+    data$value   <- as.numeric(data$value)
+    # Update table data
+    table_data(data)
+    
+    # Update map data
+    mapdata  <- merge(poly_data(), data, by = id)
+    map_data(mapdata)
+    
   })
   
-  data <- data.frame(plz = 0:9, N = c(6530447, 6807966, 8529559, 8765684, 10091905, 9048173, 7379577, 8516449, 7660168, 6532345))
-
-  output$karte <- renderPlot({
-  
+  observeEvent(input$addrow, {
+    print("input$addrow")
+    data <- table_data()
+    id   <- names(data)[1]
     
-    input$daten_cell_edit # Hiermit wird die Karte neu gerendert, wenn die Tabelle editiert wird
-    input$file1 # Hiermit wird die Karte neu gerendert, wenn Daten hochgeladen werden
-    
-    #Wenn alle PLZ Inputs auf gleicher Ebene
-    if(uniqueN(nchar(data$plz))==1){
-      if(max(nchar(data$plz))==1){
-      filexyz      <- sf::st_read("data/plz-1stellig.shp")
-      }
-      else if(max(nchar(data$plz))==2){
-        filexyz      <- sf::st_read("data/plz-2stellig.shp")
-      }
-      else if(max(nchar(data$plz))==3){
-        filexyz      <- sf::st_read("data/plz-3stellig.shp")
-      }
-
-      else if(max(nchar(data$plz))==5){
-        filexyz      <- sf::st_read("data/plz-gebiete.shp")
-      }
-      filexyz      <- merge(filexyz, data, by = "plz")#merge Polygen-Daten und Daten
-    }else if(uniqueN(nchar(data$plz))>1){#Wenn PLZ Inputs unterschiedliche Stellen haben
-      zeichen <- data.table(stellen=as.character(unique(nchar(data$plz))))
-        if(nrow(zeichen[stellen==1])!=0){
-          file_load      <- sf::st_read("data/plz-1stellig.shp")
-          file_load      <- merge(file_load, data, by = "plz", all=FALSE)
-          if(exists("filexyz")){
-            filexyz <- rbind(filexyz,file_load)
-          }else if(!exists("filexyz")){
-            filexyz <- file_load
-          }
-        }        else if(nrow(zeichen[stellen==2])!=0){
-          file_load      <- sf::st_read("data/plz-2stellig.shp")
-          file_load      <- merge(file_load, data, by = "plz", all=FALSE)
-          if(exists("filexyz")){
-            filexyz <- rbind(filexyz,file_load)
-          }else if(!exists("filexyz")){
-            filexyz <- file_load
-          }
-        }      else if(nrow(zeichen[stellen==3])!=0){
-        file_load      <- sf::st_read("data/plz-3stellig.shp")
-        file_load      <- merge(file_load, data, by = "plz", all=FALSE)
-        if(exists("filexyz")){
-          filexyz <- rbind(filexyz,file_load)
-        }else if(!exists("filexyz")){
-          filexyz <- file_load
-        }
-      }      else if(nrow(zeichen[stellen==5])!=0){
-        file_load      <- sf::st_read("data/plz-gebiete.shp")
-        file_load      <- merge(file_load, data, by = "plz", all=FALSE)
-        if(exists("filexyz")){
-          filexyz <- rbind(filexyz,file_load)
-        }else if(!exists("filexyz")){
-          filexyz <- file_load
-        }
+    if (id == "plz"){
+      if (nrow(data) > 0 ){
+        data <- rbind(data.frame(plz = sample(sample_plzs, 1), value = sample(min(data$value):max(data$value), 1), stringsAsFactors = FALSE),  data)
+      } else {
+        data <- data.frame(plz = sample(sample_plzs, 1), value = sample(1:99999, 1), stringsAsFactors = FALSE) # :( stringsAsFactors, aaaahhh
       }
     }
-   
-#Usprünglicher Code  
-    # else if(zeichen=="2" & nrow(file)==0){
-    #   file_load      <- sf::st_read("data/plz-2stellig.shp")
-    #   file      <- merge(file_load, data, by = "plz")
-    # }
-    # 
-    # if(max(nchar(data$plz))=="1"){
-    # file      <- sf::st_read("data/plz-1stellig.shp")
-    # }
-    # else if(max(nchar(data$plz))=="2"){
-    #   file      <- sf::st_read("data/plz-2stellig.shp")
-    # }
-    # else if(max(nchar(data$plz))=="3"){
-    #   file      <- sf::st_read("data/plz-3stellig.shp")
-    # }
-    # 
-    # else if(max(nchar(data$plz))=="5"){
-    #   file      <- sf::st_read("data/plz-gebiete.shp")
-    # }
-    # #merge Polygen-Daten und Daten
-    # file      <- merge(file, data, by = "plz")
-    # 
+    if (id == "ags"){
+      ags_new <- stringr::str_pad(as.character(sample(1:16, 1)), 2, "left", "0")
+      
+      if (nrow(data) > 0 ){
+        
+        data <- rbind(data.frame(ags = ags_new, value = sample(min(data$value):max(data$value), 1), stringsAsFactors = FALSE),  data)
+      } else {
+        
+        data <- data.frame(ags = ags_new, value = sample(1:99999, 1), stringsAsFactors = FALSE) # :( stringsAsFactors, aaaahhh
+      }
+    }
+    
+    # Update table data
+    table_data(data)
+    
+    # Update map data
+    mapdata  <- merge(poly_data(), data, by = id)
+    map_data(mapdata)
+    
+  })
+  
+  observeEvent(input$deleterow, {
+    print("input$deleterow")
+
+    data <- table_data()
+    id <- names(data)[1]   
+    
+    if (is.null(input$daten_rows_selected)) {
+      
+      data <- data[-1, ]
+      
+    }
+    
+    if (!is.null(input$daten_rows_selected)) {
+      
+      data <- data[-input$daten_rows_selected, ]
+      
+    }
+    
+    # Update table data
+    table_data(data)
+    
+    # Update map data
+    mapdata  <- merge(poly_data(), data, by = id)
+    map_data(mapdata)
+    })
+  
+  observeEvent(input$reset, {
+    print("input$reset")
+    
+    # Update table data
+    table_data(tabledata)
+    
+    # Update map data
+    map_data(mapdata)
+    })
+  
+  
+  map_theme <- reactive({
+    print("map_theme")
+    
+    #Update Theme, https://ggplot2.tidyverse.org/reference/ggtheme.html
+    
+    if(input$theme_choice=="default"){
+      theme_bw()
+    }
+    else if(input$theme_choice=="minimal"){
+      theme_minimal()
+    }
+    else if(input$theme_choice=="grau"){
+      theme_gray()
+    }
+    else if(input$theme_choice=="dunkel"){
+      theme_dark()
+    }
+  })
+  
+  color <- reactive({
+    print("color")
     
     #Farbe
     if(input$color_choice=="blau"){
-      color_karte <- "cividis"
+      "cividis"
     }
-      else if(input$color_choice=="rot"){
-        color_karte <- "inferno"
-      }
-        else if(input$color_choice=="grün"){
-          color_karte <- "viridis"
-        }
-          else if(input$color_choice=="lila"){
-            color_karte <- "plasma"
-          }
-    #Theme, https://ggplot2.tidyverse.org/reference/ggtheme.html
-    if(input$theme_choice=="default"){
-    theme_karte <- theme_bw()
+    else if(input$color_choice=="rot"){
+      "inferno"
     }
-      else if(input$theme_choice=="minimal"){
-        theme_karte <- theme_minimal()
-      }
-        else if(input$theme_choice=="grau"){
-          theme_karte <- theme_gray()
-        }
-          else if(input$theme_choice=="dunkel"){
-            theme_karte <- theme_dark()
-          }
-      
+    else if(input$color_choice=="grün"){
+      "viridis"
+    }
+    else if(input$color_choice=="lila"){
+      "plasma"
+    }
+    
+  })
+  
+  output$karte <- renderPlot({
+    print("karte")
     
     #Karte generieren
-    filexyz %>%
+    m <- map_data() %>%
       ggplot() + 
-      geom_sf(data = filexyz) + 
-      geom_sf(aes(fill = N)) + 
-      scale_fill_viridis("N", option = color_karte, direction = -1) + 
-      theme_karte + 
-      ggtitle("Deutschlandkarte")
+      geom_sf() + 
+      geom_sf(aes(fill = value)) + 
+      scale_fill_viridis("value", option = color(), direction = -1) + 
+      map_theme() + 
+      guides(fill = guide_legend(title = input$legtitle)) + 
+      ggtitle(input$title) + 
+      theme(axis.text=element_blank(), panel.grid.major = element_blank())
     
+    if (input$axislabel) m <- m + theme(axis.text=element_text())
+    if (input$axislines) m <- m + theme(axis.line=element_line())
+    if (input$grid)      m <- m + theme(panel.grid.major=element_line())
+
+    m
 
   })
   
-  
-  
-  output$daten  <-  renderDT(data, selection = 'none', editable = TRUE)
-  
-  proxy  <-  dataTableProxy('daten')
+  output$daten <- DT::renderDataTable({
+    print("daten")
+    
+    datatable(table_data(), selection = 'single', editable = TRUE, rownames = FALSE,
+              options = list())
+  })
   
   observeEvent(input$daten_cell_edit, {
-    info = input$daten_cell_edit
-    str(info)
-    i = info$row
-    j = info$col
-    v = info$value
-    data[i, j] <<- DT::coerceValue(v, data[i, j])
-    replaceData(proxy, data, resetPaging = FALSE)  # Quelle: https://github.com/rstudio/DT/pull/480, wenn man eine ganze Zeile löscht, gibt es noch nen Error
+    print("input$daten_cell_edit")
+
+    data <- table_data()
+    id <- names(data)[1]   
+    
+    info  <-  input$daten_cell_edit
+    i  <- info$row 
+    j  <- info$col + 1# DT nimmt sonst die falsche Spalte, ich glaube es zählt die Zeilennamen mit, vielleicht führt das zu einem Fehler beim Upload...
+    if (j == 2)     v  <- as.numeric(info$value)
+    if (j == 1)     v  <- as.character(info$value)
+    print(j)
+    print(v)
+    print(data[i, j])
+    data[i, j] <- v
+    
+    # Update
+    table_data(data)
+    
+    mapdata  <- merge(poly_data(), data, by = id)
+    map_data(mapdata)
+    
   })
   
-
+  
   
 }
