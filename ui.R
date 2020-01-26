@@ -1,3 +1,9 @@
+
+
+stats <- readRDS("data/available_stats.RDS")
+stats <- stats[1:10]
+
+
 fluidPage(
   titlePanel("Eine Karte bitte, danke!"),
   
@@ -9,14 +15,13 @@ fluidPage(
     ),
     column(2, h5("Daten über die API beziehen: -> TODO via datenguideR"),
            selectInput("api_stat", "Statistik auswählen:",
-                       choices=c("Platzhalter 1", "Platzhalter 2"))),
+                       choices=c("keine", stats$stat_name))
+    ),
     column(2, h5(":)"),
-           selectInput("api_jahr", "Jahr auswählen:",
-                       choices=c("2017", "2012"))
-           ),
+           uiOutput("ui")
+    ),
     column(2, h5(":O"),
-           selectInput("api_detail", "Detailebene auswählen:",
-                       choices=c("Bundesländer", "Regionen", "Landkreise"))
+           actionButton("api_execute", "Ausführen")
     ),
     column(1)),
   hr(),
@@ -37,12 +42,21 @@ fluidPage(
            actionButton("addrow", "Zeile hinzufügen"),
            actionButton("deleterow", "Zeile löschen"),
            hr(),
-           DT::dataTableOutput("daten")
+           DT::dataTableOutput("daten"),
+           h5("Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquid ex ea commodi consequat. Quis aute iure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+              Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.")
            ),
     column(5,
-           plotOutput(outputId = "karte", height = "700px")
+           h5("Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquid ex ea commodi consequat. Quis aute iure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+              Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."),
+           plotOutput(outputId = "karte", height = "700px"),
+           hr(),
+           h5("Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquid ex ea commodi consequat. Quis aute iure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+              Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.")
            ),
     column(3,
+           h5("Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquid ex ea commodi consequat. Quis aute iure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+              Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."),
            textInput(inputId = "title", label = "Titel der Karte:", value = "PLZ Karte"),
            textInput(inputId = "legtitle", label = "Titel der Legende:", value = "Legende"),
            selectInput("color_choice", "Farbe:",

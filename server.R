@@ -5,6 +5,8 @@ library(ggplot2)
 library(viridis)
 library(shiny)
 library(DT)
+library(datenguideR)
+
 
 options(scipen=10000)
 
@@ -28,6 +30,49 @@ server <- function(input, output) {
   table_data <- reactiveVal(tabledata)
   # poly_data  <- reactiveVal(ags1)
   map_data   <- reactiveVal(mapdata)
+  
+  api_data <- reactive({
+    
+    print(input$api_jahr)
+    
+    if (input$api_stat != "keine"){
+      apidata <- as.data.frame(dg_call(nuts_nr = 1, stat_name = input$api_stat))
+      print("Hallo")
+      print(apidata[, c("id", "year", "value")])
+      return(apidata[, c("id", "year", "value")])
+    } else {
+      apidata <- data.frame(id = character(), year = numeric(), value = numeric())
+      return(apidata)
+    }
+    
+  })
+  
+  possible_years <- reactive({
+    
+    apidata <- api_data()
+    unique(apidata$year)
+    
+  })
+  
+  output$ui <- renderUI({
+    selectInput("api_jahr", "Jahr auswählen:",
+                choices=possible_years())
+  })
+  
+  selected_api_data <- reactive({
+    
+    apidata <- api_data()
+    print("HIER")
+    print(input$api_jahr)
+    
+    print(apidata[as.character(apidata$year) == input$api_jahr, c("id", "value")])
+    apidata <- apidata[as.character(apidata$year) == input$api_jahr, c("id", "value")]
+    names(apidata)[1] <- "ags"
+    apidata
+    
+  })
+    
+  
   
   poly_data <- reactive({
     print("poly_data")
@@ -91,6 +136,21 @@ server <- function(input, output) {
         data <- data.frame(ags = ags_new, value = sample(1:99999, 1), stringsAsFactors = FALSE) # :( stringsAsFactors, aaaahhh
       }
     }
+    
+    # Update table data
+    table_data(data)
+    
+    # Update map data
+    mapdata  <- merge(poly_data(), data, by = id)
+    map_data(mapdata)
+    
+  })
+  
+  observeEvent(input$api_execute, {
+    print("input$api_execute")
+    
+    data <- selected_api_data()
+    id   <- names(data)[1]
     
     # Update table data
     table_data(data)
