@@ -52,13 +52,8 @@ server <- function(input, output) {
     print("possible_years")
 
     apidata <- api_data()
-    if (nrow(apidata) == 0){
-      return(unique(apidata$year))
-    } else {
-      return(c("2020"))
-    }
-
-
+    unique(apidata$year)
+ 
   })
   
   output$ui <- renderUI({
