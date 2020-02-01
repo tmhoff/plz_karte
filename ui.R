@@ -13,18 +13,8 @@ fluidPage(
            selectInput("map_examples", "Beispielkarten:",
                        choices=c("funktioniert noch nicht", ":( TODO"))
     ),
-    column(2, h5("Daten über die API beziehen: -> TODO via datenguideR"),
-           selectInput("api_stat", "Statistik auswählen:",
-                       choices=c("keine", stats$stat_name))
-    ),
-    column(2, h5(":)"),
-           uiOutput("ui")
-    ),
-    column(2, h5(":O"),
-           actionButton("api_execute", "Ausführen")
-    ),
-    column(1)),
-  hr(),
+  hr()),
+  
   fluidRow(
     column(1),
     column(3,
