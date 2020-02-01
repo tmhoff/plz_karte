@@ -25,30 +25,25 @@ fluidPage(
                      accept = c("text/csv",
                                 "text/comma-separated-values,text/plain",
                                 ".csv")),
-           helpText("CSV Datei mit 2 Spalten. Erste Spalte kann entweder die Postleitzahl als String enthalten mit dem Spaltennahmen 'plz', oder den amtlichen Gemeindeschlüssel, bisher nur mit den 2 Stellen für das Bundesland unter dem Spaltennahmen 'ags'.
+           h5("CSV Datei mit 2 Spalten. Erste Spalte kann entweder die Postleitzahl als String enthalten mit dem Spaltennahmen 'plz', oder den amtlichen Gemeindeschlüssel, bisher nur mit den 2 Stellen für das Bundesland unter dem Spaltennahmen 'ags'.
              Die 2. Spalte hat den Namen 'value' und kann beliebige numerische Werte beinhalten, die dann auf der Karte visualisiert werden."),
            hr(),
            actionButton("reset", "Zurücksetzen"),
            actionButton("addrow", "Zeile hinzufügen"),
            actionButton("deleterow", "Zeile löschen"),
            hr(),
-           DT::dataTableOutput("daten"),
-           h5("Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquid ex ea commodi consequat. Quis aute iure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-              Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.")
+           DT::dataTableOutput("daten")
            ),
     column(5,
-           h5("Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquid ex ea commodi consequat. Quis aute iure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-              Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."),
            plotOutput(outputId = "karte", height = "700px"),
-           hr(),
-           h5("Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquid ex ea commodi consequat. Quis aute iure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-              Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.")
+           hr()
            ),
     column(3,
-           h5("Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquid ex ea commodi consequat. Quis aute iure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-              Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."),
            textInput(inputId = "title", label = "Titel der Karte:", value = "PLZ Karte"),
+           numericInput(inputId = "titletext", label = "Schriftgöße Titel:", min = 6, max = 50, value = 12),
            textInput(inputId = "legtitle", label = "Titel der Legende:", value = "Legende"),
+           numericInput(inputId = "legtext", label = "Schriftgöße Legendentitel:", min = 6, max = 50, value = 12),
+           checkboxInput(inputId = "showlegend", label = "Legende einblenden", value = TRUE),
            selectInput("color_choice", "Farbe:",
                                        choices=c("blau", "rot", 
                                                  "grün", "lila")),
@@ -58,10 +53,10 @@ fluidPage(
            checkboxInput(inputId = "axislabel", label = "Achsenbeschriftungen"),
            checkboxInput(inputId = "axislines", label = "Achsenlinien"),
            checkboxInput(inputId = "grid", label = "Gitterlinien"),
-           
-           
-           h5("Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquid ex ea commodi consequat. Quis aute iure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-              Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.")
-    )
+           numericInput(inputId = "downloadwidth", "Breite der Datei in Pixel", min = 200, max = 5000, value = 600),
+           numericInput(inputId = "downloadheight", "Höhe der Datei in Pixel", min = 200, max = 5000, value = 800),
+           downloadButton('downloadPNG', 'Download PNG'),
+           downloadButton('downloadSVG', 'Download SVG')
+           )
   )
 )

@@ -13,7 +13,7 @@ tabledata2     <- data.frame(plz = as.character(0:9), value = c(6530447, 6807966
                           stringsAsFactors = FALSE) # Hat stringsAsFactors = TRUE als Default irgendwann jemals Sinn ergeben?
 tabledata      <- data.frame(ags = as.character(1:16), value = runif(16),
                             stringsAsFactors = FALSE) # Hat stringsAsFactors = TRUE als Default irgendwann jemals Sinn ergeben?
-tabledata$ags <- stringr::str_pad(tabledata$ags, width = 2, side = "left", pad = "0")
+tabledata$ags  <- stringr::str_pad(tabledata$ags, width = 2, side = "left", pad = "0")
 plz12345_p1      <- readRDS("data/plz_data_gesamt_p1.RDS") # als 2 Parts sind es unter 100mb mal sehen ob github es akzeptiert
 plz12345_p2      <- readRDS("data/plz_data_gesamt_p2.RDS")
 plz12345         <- rbind(plz12345_p1, plz12345_p2)
@@ -189,17 +189,99 @@ server <- function(input, output) {
       geom_sf(aes(fill = value)) + 
       scale_fill_viridis("value", option = color(), direction = -1) + 
       map_theme() + 
+      ggtitle(input$title) +
       guides(fill = guide_legend(title = input$legtitle)) + 
-      ggtitle(input$title) + 
-      theme(axis.text=element_blank(), panel.grid.major = element_blank())
+      theme(axis.text=element_blank(), panel.grid.major = element_blank(), 
+            plot.title = element_text(hjust = 0.5))
     
-    if (input$axislabel) m <- m + theme(axis.text=element_text())
-    if (input$axislines) m <- m + theme(axis.line=element_line())
-    if (input$grid)      m <- m + theme(panel.grid.major=element_line())
-
+    if (input$axislabel)   m <- m + theme(axis.text=element_text())
+    if (input$axislines)   m <- m + theme(axis.line=element_line())
+    if (input$grid)        m <- m + theme(panel.grid.major=element_line())
+    if (!input$showlegend) m <- m + theme(legend.position = "none")
+    m <- m + theme(plot.title = element_text(size = input$titletext), 
+                   legend.title = element_text(size = input$legtext))
     m
 
   })
+  
+  # downloadHandler() takes two arguments, both functions.
+  # The content function is passed a filename as an argument, and
+  #   it should write out data to that filename.
+  output$downloadPNG <- downloadHandler(
+    
+    # This function returns a string which tells the client
+    # browser what name to use when saving the file.
+    filename = paste0(Sys.Date(), "_", "Karte.png"),
+    
+    # This function should write data to a file given to it by
+    # the argument 'file'.
+    content = function(file) {
+      
+      png(file, width = input$downloadwidth, height = input$downloadheight)
+      
+      #Karte generieren
+      m <- map_data() %>%
+        ggplot() + 
+        geom_sf() + 
+        geom_sf(aes(fill = value)) + 
+        scale_fill_viridis("value", option = color(), direction = -1) + 
+        map_theme() + 
+        ggtitle(input$title) +
+        guides(fill = guide_legend(title = input$legtitle)) + 
+        theme(axis.text=element_blank(), panel.grid.major = element_blank(), 
+              plot.title = element_text(hjust = 0.5))
+      
+      if (input$axislabel)   m <- m + theme(axis.text=element_text())
+      if (input$axislines)   m <- m + theme(axis.line=element_line())
+      if (input$grid)        m <- m + theme(panel.grid.major=element_line())
+      if (!input$showlegend) m <- m + theme(legend.position = "none")
+      m <- m + theme(plot.title = element_text(size = input$titletext), 
+                     legend.title = element_text(size = input$legtext))
+      
+      print(m)
+      
+      dev.off()
+      
+    }
+  )
+  
+  output$downloadSVG <- downloadHandler(
+    
+    # This function returns a string which tells the client
+    # browser what name to use when saving the file.
+    filename = paste0(Sys.Date(), "_", "Karte.svg"),
+    
+    # This function should write data to a file given to it by
+    # the argument 'file'.
+    content = function(file) {
+      
+      svg(file, width = input$downloadwidth, height = input$downloadheight)
+      
+      #Karte generieren
+      m <- map_data() %>%
+        ggplot() + 
+        geom_sf() + 
+        geom_sf(aes(fill = value)) + 
+        scale_fill_viridis("value", option = color(), direction = -1) + 
+        map_theme() + 
+        ggtitle(input$title) +
+        guides(fill = guide_legend(title = input$legtitle)) + 
+        theme(axis.text=element_blank(), panel.grid.major = element_blank(), 
+              plot.title = element_text(hjust = 0.5))
+      
+      if (input$axislabel)   m <- m + theme(axis.text=element_text())
+      if (input$axislines)   m <- m + theme(axis.line=element_line())
+      if (input$grid)        m <- m + theme(panel.grid.major=element_line())
+      if (!input$showlegend) m <- m + theme(legend.position = "none")
+      m <- m + theme(plot.title = element_text(size = input$titletext), 
+                     legend.title = element_text(size = input$legtext))
+      
+      print(m)
+      
+      dev.off()
+      
+    }
+  )
   
   output$daten <- DT::renderDataTable({
     print("daten")
