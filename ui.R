@@ -11,7 +11,7 @@ fluidPage(
     column(1),
     column(3,
            selectInput("map_examples", "Beispielkarten:",
-                       choices=c("funktioniert noch nicht", ":( TODO"))
+                       choices=c("Einwohner pro Bundesland"))
     ),
   hr()),
   

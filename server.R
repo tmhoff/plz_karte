@@ -9,28 +9,17 @@ library(DT)
 
 options(scipen=10000)
 
-tabledata2     <- data.frame(plz = as.character(0:9), value = c(6530447, 6807966, 8529559, 8765684, 10091905, 9048173, 7379577, 8516449, 7660168, 6532345),
-                          stringsAsFactors = FALSE) # Hat stringsAsFactors = TRUE als Default irgendwann jemals Sinn ergeben?
-tabledata      <- data.frame(ags = as.character(1:16), value = runif(16),
-                            stringsAsFactors = FALSE) # Hat stringsAsFactors = TRUE als Default irgendwann jemals Sinn ergeben?
-tabledata$ags  <- stringr::str_pad(tabledata$ags, width = 2, side = "left", pad = "0")
-plz12345_p1      <- readRDS("data/plz_data_gesamt_p1.RDS") # als 2 Parts sind es unter 100mb mal sehen ob github es akzeptiert
+plz12345_p1      <- readRDS("data/plz_data_gesamt_p1.RDS") # als 2 Parts sind es unter 100mb
 plz12345_p2      <- readRDS("data/plz_data_gesamt_p2.RDS")
 plz12345         <- rbind(plz12345_p1, plz12345_p2)
-
-ags1          <- readRDS("data/ags_bundeslaender.RDS")
-sample_plzs   <- c(plz12345$plz, rep(plz12345$plz, 25))
-
-mapdata2       <- merge(plz12345, tabledata2, by = "plz")
-mapdata        <- merge(ags1, tabledata, by = "ags")
+ags1             <- readRDS("data/ags_bundeslaender.RDS")
+sample_plzs      <- c(plz12345$plz, rep(plz12345$plz, 25))
 
 server <- function(input, output) {
   
-  table_data <- reactiveVal(tabledata)
-  # poly_data  <- reactiveVal(ags1)
-  map_data   <- reactiveVal(mapdata)
+  table_data <- reactiveVal()
+  map_data   <- reactiveVal()
   
-
   poly_data <- reactive({
     print("poly_data")
     
@@ -67,6 +56,40 @@ server <- function(input, output) {
     # Update map data
     mapdata  <- merge(poly_data(), data, by = id)
     map_data(mapdata)
+    
+  })
+  
+  observeEvent(input$map_examples, {
+    print("input$map_examples")
+    
+    if (input$map_examples == "Einwohner pro Bundesland"){
+      data     <- data.frame(ags = as.character(1:16), value = c(2896712,
+                                                                 1841179,
+                                                                 7982448,
+                                                                 682986,
+                                                                 17932651,
+                                                                 6265809, 
+                                                                 4084844, 
+                                                                 11069533,
+                                                                 13076721, 
+                                                                 990509,
+                                                                 3644826, 
+                                                                 2511917,
+                                                                 1609675, 
+                                                                 4077937, 
+                                                                 2208321,
+                                                                 2134393),
+                                  stringsAsFactors = FALSE)
+      data$ags <- stringr::str_pad(data$ags, 2, "left", "0")
+      id       <- names(data)[1]   
+      # Update table data
+      table_data(data)
+      
+      # Update map data
+      mapdata  <- merge(poly_data(), data, by = id)
+      map_data(mapdata)
+      
+    }
     
   })
   
