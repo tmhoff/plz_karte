@@ -59,7 +59,11 @@ server <- function(input, output) {
     
   })
   
-  observeEvent(input$map_examples, {
+  observeEvent({ 
+    input$map_examples
+    input$reset
+    1
+  }, { 
     print("input$map_examples")
     
     if (input$map_examples == "Einwohner pro Bundesland"){
@@ -79,7 +83,7 @@ server <- function(input, output) {
                                                                  4077937, 
                                                                  2208321,
                                                                  2134393),
-                                  stringsAsFactors = FALSE)
+                             stringsAsFactors = FALSE)
       data$ags <- stringr::str_pad(data$ags, 2, "left", "0")
       id       <- names(data)[1]   
       # Update table data
@@ -119,8 +123,8 @@ server <- function(input, output) {
       map_data(mapdata)
       
     }
-    
-  })
+    })
+  
   
   observeEvent(input$addrow, {
     print("input$addrow")
@@ -182,15 +186,15 @@ server <- function(input, output) {
     map_data(mapdata)
     })
   
-  observeEvent(input$reset, {
-    print("input$reset")
-    
-    # Update table data
-    table_data(tabledata)
-    
-    # Update map data
-    map_data(mapdata)
-    })
+  # observeEvent(input$reset, {
+  #   print("input$reset")
+  #   
+  #   # Update table data
+  #   table_data(tabledata)
+  #   
+  #   # Update map data
+  #   map_data(mapdata)
+  #   })
   
   
   map_theme <- reactive({
