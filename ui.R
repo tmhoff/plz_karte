@@ -11,7 +11,8 @@ fluidPage(
     column(1),
     column(3,
            selectInput("map_examples", "Beispielkarten:",
-                       choices=c("Einwohner pro Bundesland"))
+                       choices=c("Einwohner pro Bundesland", 
+                                 "Bevölkerungsdichte pro Bundesland (Einwohner pro km^2)"))
     ),
   hr()),
   

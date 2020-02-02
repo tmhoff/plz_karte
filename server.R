@@ -91,6 +91,35 @@ server <- function(input, output) {
       
     }
     
+    if (input$map_examples == "Bevölkerungsdichte pro Bundesland (Einwohner pro km^2)"){
+      data     <- data.frame(ags = as.character(1:16), value = c(183,
+                                                                 2430,
+                                                                 168,
+                                                                 1629,
+                                                                 526,
+                                                                 297, 
+                                                                 206, 
+                                                                 310,
+                                                                 185, 
+                                                                 385,
+                                                                 4088, 
+                                                                 85,
+                                                                 69, 
+                                                                 221, 
+                                                                 108,
+                                                                 133),
+                             stringsAsFactors = FALSE)
+      data$ags <- stringr::str_pad(data$ags, 2, "left", "0")
+      id       <- names(data)[1]   
+      # Update table data
+      table_data(data)
+      
+      # Update map data
+      mapdata  <- merge(poly_data(), data, by = id)
+      map_data(mapdata)
+      
+    }
+    
   })
   
   observeEvent(input$addrow, {
