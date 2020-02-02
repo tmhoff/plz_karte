@@ -1,9 +1,4 @@
 
-
-stats <- readRDS("data/available_stats.RDS")
-stats <- stats[1:10, ]
-
-
 fluidPage(
   titlePanel("Eine Karte bitte, danke!"),
   
