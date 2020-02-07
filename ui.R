@@ -21,8 +21,8 @@ fluidPage(
                      accept = c("text/csv",
                                 "text/comma-separated-values,text/plain",
                                 ".csv")),
-           h5("CSV Datei mit 2 Spalten. Erste Spalte kann entweder die Postleitzahl als String enthalten mit dem Spaltennahmen 'plz', oder den amtlichen Gemeindeschlüssel, bisher nur mit den 2 Stellen für das Bundesland unter dem Spaltennahmen 'ags'.
-             Die 2. Spalte hat den Namen 'value' und kann beliebige numerische Werte beinhalten, die dann auf der Karte visualisiert werden."),
+           h5("CSV Datei mit 2 Spalten. Erste Spalte kann entweder die Postleitzahl als String enthalten mit dem Spaltennahmen 'plz', oder den amtlichen Gemeindeschlüssel mit 1 bis 8 Stellen unter dem Spaltennahmen 'ags'.
+             Die 2. Spalte hat den Namen 'value' und kann beliebige numerische Werte beinhalten, die dann auf der Karte visualisiert werden. Die Geodaten stammen von http://www.bkg.bund.de © GeoBasis-DE / BKG 2020"),
            hr(),
            actionButton("reset", "Zurücksetzen"),
            actionButton("addrow", "Zeile hinzufügen"),

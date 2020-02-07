@@ -12,7 +12,7 @@ options(scipen=10000)
 plz12345_p1      <- readRDS("data/plz_data_gesamt_p1.RDS") # als 2 Parts sind es unter 100mb
 plz12345_p2      <- readRDS("data/plz_data_gesamt_p2.RDS")
 plz12345         <- rbind(plz12345_p1, plz12345_p2)
-ags1             <- readRDS("data/ags_bundeslaender.RDS")
+ags8             <- readRDS("data/VG250_GEM_1_8.RDS")
 sample_plzs      <- c(plz12345$plz, rep(plz12345$plz, 25))
 
 server <- function(input, output) {
@@ -30,7 +30,7 @@ server <- function(input, output) {
       return(plz12345)
     }
     if (id == "ags"){
-      return(ags1)
+      return(ags8)
     }
   })
 
