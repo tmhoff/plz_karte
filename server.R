@@ -32,8 +32,8 @@ plot_karte <- function(mapdata,
   m <- mapdata %>%
     ggplot() + 
     geom_sf() + 
-    geom_sf(aes(fill = value)) + 
-    scale_fill_viridis("value", option = mapcolor, direction = -1) + 
+    geom_sf(aes(fill = wert)) + 
+    scale_fill_viridis("wert", option = mapcolor, direction = -1) + 
     maptheme + 
     ggtitle(maptitle) +
     guides(fill = guide_legend(title = legendtitle)) + 
@@ -86,8 +86,8 @@ server <- function(input, output) {
       data$ags <- as.character(data$ags)
     }
     
-    names(data)[2] <- "value"
-    data$value   <- as.numeric(data$value)
+    names(data)[2] <- "wert"
+    data$wert   <- as.numeric(data$wert)
     # Update table data
     table_data(data)
     
@@ -105,7 +105,7 @@ server <- function(input, output) {
     print("input$map_examples")
     
     if (input$map_examples == "Einwohner pro Bundesland"){
-      data     <- data.frame(ags = as.character(1:16), value = c(2896712,
+      data     <- data.frame(ags = as.character(1:16), wert = c(2896712,
                                                                  1841179,
                                                                  7982448,
                                                                  682986,
@@ -134,7 +134,7 @@ server <- function(input, output) {
     }
     
     if (input$map_examples == "Bevölkerungsdichte pro Bundesland (Einwohner pro km^2)"){
-      data     <- data.frame(ags = as.character(1:16), value = c(183,
+      data     <- data.frame(ags = as.character(1:16), wert = c(183,
                                                                  2430,
                                                                  168,
                                                                  1629,
@@ -171,9 +171,9 @@ server <- function(input, output) {
     
     if (id == "plz"){
       if (nrow(data) > 0 ){
-        data <- rbind(data.frame(plz = sample(sample_plzs, 1), value = sample(min(data$value):max(data$value), 1), stringsAsFactors = FALSE),  data)
+        data <- rbind(data.frame(plz = sample(sample_plzs, 1), wert = sample(min(data$wert):max(data$wert), 1), stringsAsFactors = FALSE),  data)
       } else {
-        data <- data.frame(plz = sample(sample_plzs, 1), value = sample(1:99999, 1), stringsAsFactors = FALSE) # :( stringsAsFactors, aaaahhh
+        data <- data.frame(plz = sample(sample_plzs, 1), wert = sample(1:99999, 1), stringsAsFactors = FALSE) # :( stringsAsFactors, aaaahhh
       }
     }
     if (id == "ags"){
@@ -181,10 +181,10 @@ server <- function(input, output) {
       
       if (nrow(data) > 0 ){
         
-        data <- rbind(data.frame(ags = ags_new, value = sample(min(data$value):max(data$value), 1), stringsAsFactors = FALSE),  data)
+        data <- rbind(data.frame(ags = ags_new, wert = sample(min(data$wert):max(data$wert), 1), stringsAsFactors = FALSE),  data)
       } else {
         
-        data <- data.frame(ags = ags_new, value = sample(1:99999, 1), stringsAsFactors = FALSE) # :( stringsAsFactors, aaaahhh
+        data <- data.frame(ags = ags_new, wert = sample(1:99999, 1), stringsAsFactors = FALSE) # :( stringsAsFactors, aaaahhh
       }
     }
     
@@ -359,9 +359,9 @@ server <- function(input, output) {
     print("daten")
     
     datatable(table_data(), selection = 'single', editable = TRUE, rownames = FALSE,
-              options = list())
+              options = list(language = list(url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/German.json')))
   })
-  
+
   observeEvent(input$daten_cell_edit, {
     print("input$daten_cell_edit")
 
@@ -371,8 +371,8 @@ server <- function(input, output) {
     info  <-  input$daten_cell_edit
     i  <- info$row 
     j  <- info$col + 1# DT nimmt sonst die falsche Spalte, ich glaube es zählt die Zeilennamen mit, vielleicht führt das zu einem Fehler beim Upload...
-    if (j == 2)     v  <- as.numeric(info$value)
-    if (j == 1)     v  <- as.character(info$value)
+    if (j == 2)     v  <- as.numeric(info$wert)
+    if (j == 1)     v  <- as.character(info$wert)
     print(j)
     print(v)
     print(data[i, j])
