@@ -104,6 +104,20 @@ server <- function(input, output) {
   }, { 
     print("input$map_examples")
     
+    if (input$map_examples == "Stimmenanteil Tierschutzpartei Brandenburg 2017 in %"){
+      
+      data <- read.csv("data/wahl_bb2017.csv", stringsAsFactors = FALSE )
+      data$ags <- as.character(data$ags)
+      id       <- names(data)[1]   
+      # Update table data
+      table_data(data)
+      
+      # Update map data
+      mapdata  <- merge(poly_data(), data, by = id)
+      map_data(mapdata)
+      
+    }
+    
     if (input$map_examples == "Einwohner pro Bundesland"){
       data     <- data.frame(ags = as.character(1:16), wert = c(2896712,
                                                                  1841179,
