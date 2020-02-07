@@ -35,7 +35,7 @@ fluidPage(
            hr()
            ),
     column(3,
-           textInput(inputId = "title", label = "Titel der Karte:", value = "PLZ Karte"),
+           textInput(inputId = "title", label = "Titel der Karte:", value = "PLZ / AGS Karte"),
            numericInput(inputId = "titletext", label = "Schriftgöße Titel:", min = 6, max = 50, value = 12),
            textInput(inputId = "legtitle", label = "Titel der Legende:", value = "Legende"),
            numericInput(inputId = "legtext", label = "Schriftgöße Legendentitel:", min = 6, max = 50, value = 12),
