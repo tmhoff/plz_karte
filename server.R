@@ -385,8 +385,8 @@ server <- function(input, output) {
     info  <-  input$daten_cell_edit
     i  <- info$row 
     j  <- info$col + 1# DT nimmt sonst die falsche Spalte, ich glaube es zählt die Zeilennamen mit, vielleicht führt das zu einem Fehler beim Upload...
-    if (j == 2)     v  <- as.numeric(info$wert)
-    if (j == 1)     v  <- as.character(info$wert)
+    if (j == 2)     v  <- as.numeric(info$value)
+    if (j == 1)     v  <- as.character(info$value)
     print(j)
     print(v)
     print(data[i, j])
