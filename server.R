@@ -1,4 +1,3 @@
-#https://www.suche-postleitzahl.org/downloads 
 library(sf)
 library(dplyr)
 library(ggplot2)
@@ -9,10 +8,14 @@ library(DT)
 
 options(scipen=10000)
 
-plz12345_p1      <- readRDS("data/plz_data_gesamt_p1.RDS") # als 2 Parts sind es unter 100mb
+plz12345_p1      <- readRDS("data/plz_data_gesamt_p1.RDS") 
 plz12345_p2      <- readRDS("data/plz_data_gesamt_p2.RDS")
 plz12345         <- rbind(plz12345_p1, plz12345_p2)
-ags8             <- readRDS("data/VG250_GEM_1_8.RDS")
+rs1_7            <- readRDS("data/VG250_GEM_1_7.RDS")
+rs8_10           <- readRDS("data/VG250_GEM_8_10.RDS")
+rs11_12          <- readRDS("data/VG250_GEM_11_12.RDS")
+rs1_12           <- rbind(rs1_7, rs8_10, rs11_12)
+ags1_8           <- readRDS("data/VG250_GEM_1_8.RDS")
 sample_plzs      <- c(plz12345$plz, rep(plz12345$plz, 25))
 
 
@@ -51,8 +54,6 @@ plot_karte <- function(mapdata,
 }
 
 
-
-
 server <- function(input, output) {
   
   table_data <- reactiveVal()
@@ -68,7 +69,11 @@ server <- function(input, output) {
       return(plz12345)
     }
     if (id == "ags"){
-      return(ags8)
+      return(ags1_8)
+    }
+    if (id == "rs"){
+      print("Hier RS")
+      return(rs1_12)
     }
   })
 
@@ -79,15 +84,19 @@ server <- function(input, output) {
     data     <- data[!is.na(data[, 1]), ]
     id       <- names(data)[1]   
     
+    print(id)
     if (id == "plz"){
       data$plz <- as.character(data$plz)
     }
     if (id == "ags"){
       data$ags <- as.character(data$ags)
     }
+    if (id == "rs"){
+      data$rs <- as.character(data$rs)
+    }
     
     names(data)[2] <- "wert"
-    data$wert   <- as.numeric(data$wert)
+    data$wert      <- as.numeric(data$wert)
     # Update table data
     table_data(data)
     
@@ -187,7 +196,7 @@ server <- function(input, output) {
       if (nrow(data) > 0 ){
         data <- rbind(data.frame(plz = sample(sample_plzs, 1), wert = sample(min(data$wert):max(data$wert), 1), stringsAsFactors = FALSE),  data)
       } else {
-        data <- data.frame(plz = sample(sample_plzs, 1), wert = sample(1:99999, 1), stringsAsFactors = FALSE) # :( stringsAsFactors, aaaahhh
+        data <- data.frame(plz = sample(sample_plzs, 1), wert = sample(1:99999, 1), stringsAsFactors = FALSE)
       }
     }
     if (id == "ags"){
@@ -198,7 +207,18 @@ server <- function(input, output) {
         data <- rbind(data.frame(ags = ags_new, wert = sample(min(data$wert):max(data$wert), 1), stringsAsFactors = FALSE),  data)
       } else {
         
-        data <- data.frame(ags = ags_new, wert = sample(1:99999, 1), stringsAsFactors = FALSE) # :( stringsAsFactors, aaaahhh
+        data <- data.frame(ags = ags_new, wert = sample(1:99999, 1), stringsAsFactors = FALSE)
+      }
+    }
+    if (id == "rs"){
+      rs_new <- stringr::str_pad(as.character(sample(1:16, 1)), 2, "left", "0")
+      
+      if (nrow(data) > 0 ){
+        
+        data <- rbind(data.frame(rs = rs_new, wert = sample(min(data$wert):max(data$wert), 1), stringsAsFactors = FALSE),  data)
+      } else {
+        
+        data <- data.frame(rs = rs_new, wert = sample(1:99999, 1), stringsAsFactors = FALSE)
       }
     }
     
@@ -237,17 +257,6 @@ server <- function(input, output) {
     mapdata  <- merge(poly_data(), data, by = id)
     map_data(mapdata)
     })
-  
-  # observeEvent(input$reset, {
-  #   print("input$reset")
-  #   
-  #   # Update table data
-  #   table_data(tabledata)
-  #   
-  #   # Update map data
-  #   map_data(mapdata)
-  #   })
-  
   
   map_theme <- reactive({
     print("map_theme")
