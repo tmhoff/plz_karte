@@ -15,6 +15,44 @@ plz12345         <- rbind(plz12345_p1, plz12345_p2)
 ags8             <- readRDS("data/VG250_GEM_1_8.RDS")
 sample_plzs      <- c(plz12345$plz, rep(plz12345$plz, 25))
 
+
+plot_karte <- function(mapdata,
+                       mapcolor,
+                       maptheme,
+                       maptitle,
+                       legendtitle,
+                       maplabel,
+                       mapaxislines,
+                       mapgrid,
+                       mapshowlegend,
+                       maptitletext,
+                       maplegtext){
+  
+  #Karte generieren
+  m <- mapdata %>%
+    ggplot() + 
+    geom_sf() + 
+    geom_sf(aes(fill = value)) + 
+    scale_fill_viridis("value", option = mapcolor, direction = -1) + 
+    maptheme + 
+    ggtitle(maptitle) +
+    guides(fill = guide_legend(title = legendtitle)) + 
+    theme(axis.text=element_blank(), panel.grid.major = element_blank(), 
+          plot.title = element_text(hjust = 0.5))
+  
+  if (maplabel)       m <- m + theme(axis.text=element_text())
+  if (mapaxislines)   m <- m + theme(axis.line=element_line())
+  if (mapgrid)        m <- m + theme(panel.grid.major=element_line())
+  if (!mapshowlegend) m <- m + theme(legend.position = "none")
+  m <- m + theme(plot.title = element_text(size = maptitletext), 
+                 legend.title = element_text(size = maplegtext))
+  m
+  
+}
+
+
+
+
 server <- function(input, output) {
   
   table_data <- reactiveVal()
@@ -238,25 +276,18 @@ server <- function(input, output) {
   output$karte <- renderPlot({
     print("karte")
     
-    #Karte generieren
-    m <- map_data() %>%
-      ggplot() + 
-      geom_sf() + 
-      geom_sf(aes(fill = value)) + 
-      scale_fill_viridis("value", option = color(), direction = -1) + 
-      map_theme() + 
-      ggtitle(input$title) +
-      guides(fill = guide_legend(title = input$legtitle)) + 
-      theme(axis.text=element_blank(), panel.grid.major = element_blank(), 
-            plot.title = element_text(hjust = 0.5))
-    
-    if (input$axislabel)   m <- m + theme(axis.text=element_text())
-    if (input$axislines)   m <- m + theme(axis.line=element_line())
-    if (input$grid)        m <- m + theme(panel.grid.major=element_line())
-    if (!input$showlegend) m <- m + theme(legend.position = "none")
-    m <- m + theme(plot.title = element_text(size = input$titletext), 
-                   legend.title = element_text(size = input$legtext))
-    m
+
+    plot_karte(mapdata = map_data(),
+               mapcolor = color(),
+               maptheme = map_theme(),
+               maptitle = input$title,
+               legendtitle = input$legtitle,
+               maplabel = input$axislabel,
+               mapaxislines = input$axislines,
+               mapgrid = input$grid,
+               mapshowlegend = input$showlegend,
+               maptitletext = input$titletext,
+               maplegtext = input$legtext)
 
   })
   
@@ -275,25 +306,17 @@ server <- function(input, output) {
       
       png(file, width = input$downloadwidth, height = input$downloadheight)
       
-      #Karte generieren
-      m <- map_data() %>%
-        ggplot() + 
-        geom_sf() + 
-        geom_sf(aes(fill = value)) + 
-        scale_fill_viridis("value", option = color(), direction = -1) + 
-        map_theme() + 
-        ggtitle(input$title) +
-        guides(fill = guide_legend(title = input$legtitle)) + 
-        theme(axis.text=element_blank(), panel.grid.major = element_blank(), 
-              plot.title = element_text(hjust = 0.5))
-      
-      if (input$axislabel)   m <- m + theme(axis.text=element_text())
-      if (input$axislines)   m <- m + theme(axis.line=element_line())
-      if (input$grid)        m <- m + theme(panel.grid.major=element_line())
-      if (!input$showlegend) m <- m + theme(legend.position = "none")
-      m <- m + theme(plot.title = element_text(size = input$titletext), 
-                     legend.title = element_text(size = input$legtext))
-      
+      m <- plot_karte(mapdata = map_data(),
+                 mapcolor = color(),
+                 maptheme = map_theme(),
+                 maptitle = input$title,
+                 legendtitle = input$legtitle,
+                 maplabel = input$axislabel,
+                 mapaxislines = input$axislines,
+                 mapgrid = input$grid,
+                 mapshowlegend = input$showlegend,
+                 maptitletext = input$titletext,
+                 maplegtext = input$legtext)
       print(m)
       
       dev.off()
@@ -313,24 +336,17 @@ server <- function(input, output) {
       
       svg(file, width = input$downloadwidth, height = input$downloadheight)
       
-      #Karte generieren
-      m <- map_data() %>%
-        ggplot() + 
-        geom_sf() + 
-        geom_sf(aes(fill = value)) + 
-        scale_fill_viridis("value", option = color(), direction = -1) + 
-        map_theme() + 
-        ggtitle(input$title) +
-        guides(fill = guide_legend(title = input$legtitle)) + 
-        theme(axis.text=element_blank(), panel.grid.major = element_blank(), 
-              plot.title = element_text(hjust = 0.5))
-      
-      if (input$axislabel)   m <- m + theme(axis.text=element_text())
-      if (input$axislines)   m <- m + theme(axis.line=element_line())
-      if (input$grid)        m <- m + theme(panel.grid.major=element_line())
-      if (!input$showlegend) m <- m + theme(legend.position = "none")
-      m <- m + theme(plot.title = element_text(size = input$titletext), 
-                     legend.title = element_text(size = input$legtext))
+      m <- plot_karte(mapdata = map_data(),
+                      mapcolor = color(),
+                      maptheme = map_theme(),
+                      maptitle = input$title,
+                      legendtitle = input$legtitle,
+                      maplabel = input$axislabel,
+                      mapaxislines = input$axislines,
+                      mapgrid = input$grid,
+                      mapshowlegend = input$showlegend,
+                      maptitletext = input$titletext,
+                      maplegtext = input$legtext)
       
       print(m)
       
