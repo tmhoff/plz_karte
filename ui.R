@@ -9,10 +9,10 @@ fluidPage(
                        choices=c("Einwohner pro Bundesland", 
                                  "Bevölkerungsdichte pro Bundesland (Einwohner pro km^2)", 
                                  "Stimmenanteil Tierschutzpartei Brandenburg 2017 in %"))
-    ),
-  hr()),
+    )),
   
   fluidRow(
+    hr(),
     column(1),
     column(3,
 
@@ -33,7 +33,6 @@ fluidPage(
            ),
     column(5,
            plotOutput(outputId = "karte", height = "700px"),
-           hr()
            ),
     column(3,
            textInput(inputId = "title", label = "Titel der Karte:", value = "PLZ / AGS Karte"),
@@ -55,5 +54,11 @@ fluidPage(
            downloadButton('downloadPNG', 'Download PNG'),
            downloadButton('downloadSVG', 'Download SVG')
            )
+  ),
+  fluidRow(
+    hr(),
+    a("Datenschutz", href="/datenschutz.html"),
+    a("Impressum", href="/impressum.html")
+    
   )
 )
