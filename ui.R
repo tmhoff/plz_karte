@@ -21,7 +21,8 @@ fluidPage(
     hr(),
     column(1),
     column(3,
-
+           h5("Online Karten Generator für Daten mit Postleitzahlen oder mit dem amtlichen Gemeindeschlüssel."),
+           hr(),
            # Input: Select a file ----
            fileInput("file1", "CSV Datei hochladen", placeholder = "CSV Datei auswählen", buttonLabel = "Durchsuchen",
                      multiple = FALSE,
@@ -35,6 +36,7 @@ fluidPage(
            actionButton("addrow", "Zeile hinzufügen"),
            actionButton("deleterow", "Zeile löschen"),
            hr(),
+           h5("Sie können die Daten in der Tabelle auch direkt bearbeiten."),
            DT::dataTableOutput("daten")
            ),
     column(5,
@@ -58,7 +60,9 @@ fluidPage(
            numericInput(inputId = "downloadwidth", "Breite der Datei in Pixel", min = 200, max = 5000, value = 600),
            numericInput(inputId = "downloadheight", "Höhe der Datei in Pixel", min = 200, max = 5000, value = 800),
            downloadButton('downloadPNG', 'Download PNG'),
-           downloadButton('downloadSVG', 'Download SVG')
+           downloadButton('downloadSVG', 'Download SVG'),
+           h5("Grafiken im SVG Format können beim Import in z.B. PowerPoint zerlegt werden und die Teile der Karte somit einzeln bearbeitet werden.")
+           
            )
   ),
   fluidRow(
