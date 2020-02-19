@@ -1,5 +1,11 @@
 
 fluidPage(
+  tags$head(
+    tags$meta(charset="UTF-8"),
+    tags$meta(name="description", content="Online-Tool zur Generierung von Karten anhand von Postleitzahlen und dem Amtlichen Gemeindeschlüssel. "),
+    tags$meta(name="keywords", content="Generator, Karte, Postleitzahl, amtlicher Gemeindeschlüssel, shapefiles, tool, png, svg, map, Deutschland, Bundesländer, Gemeinde"),
+  ), 
+  
   titlePanel("Eine Karte bitte, danke!"),
   
   fluidRow(
