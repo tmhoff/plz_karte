@@ -7,6 +7,7 @@ library(DT)
 
 
 options(scipen=10000)
+shinyOptions(cache = memoryCache(max_size = 80e6, max_age = Inf, evict = "lru"))
 
 plz12345_p1      <- readRDS("data/plz_data_gesamt_p1.RDS") 
 plz12345_p2      <- readRDS("data/plz_data_gesamt_p2.RDS")
@@ -296,10 +297,9 @@ server <- function(input, output) {
     
   })
   
-  output$karte <- renderPlot({
+  output$karte <- renderCachedPlot({
     print("karte")
     
-
     plot_karte(mapdata = map_data(),
                mapcolor = color(),
                maptheme = map_theme(),
@@ -311,12 +311,21 @@ server <- function(input, output) {
                mapshowlegend = input$showlegend,
                maptitletext = input$titletext,
                maplegtext = input$legtext)
-
-  })
+    
+  },
+  cacheKeyExpr = { list(map_data(),
+                        color(),
+                        map_theme(),
+                        input$title,
+                        input$legtitle,
+                        input$axislabel,
+                        input$axislines,
+                        input$grid,
+                        input$showlegend,
+                        input$titletext,
+                        input$legtext)} )
   
-  # downloadHandler() takes two arguments, both functions.
-  # The content function is passed a filename as an argument, and
-  #   it should write out data to that filename.
+  
   output$downloadPNG <- downloadHandler(
     
     # This function returns a string which tells the client
