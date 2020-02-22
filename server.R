@@ -323,7 +323,9 @@ server <- function(input, output) {
                         input$grid,
                         input$showlegend,
                         input$titletext,
-                        input$legtext)} )
+                        input$legtext)},
+  sizePolicy = sizeGrowthRatio(width =
+                                 400, height = 700, growthRate = 1.4))
   
   
   output$downloadPNG <- downloadHandler(
