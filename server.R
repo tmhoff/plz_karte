@@ -7,7 +7,7 @@ library(DT)
 
 
 options(scipen=10000)
-shinyOptions(cache = memoryCache(max_size = 80e6, max_age = Inf, evict = "lru"))
+shinyOptions(cache = memoryCache(max_size = 10e7, max_age = Inf, evict = "lru"))
 
 plz12345_p1      <- readRDS("data/plz_data_gesamt_p1.RDS") 
 plz12345_p2      <- readRDS("data/plz_data_gesamt_p2.RDS")
