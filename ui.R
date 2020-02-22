@@ -40,13 +40,13 @@ fluidPage(
            DT::dataTableOutput("daten")
            ),
     column(5,
-           plotOutput(outputId = "karte", height = "700px"),
+           plotOutput(outputId = "karte", height = "700px")
            ),
     column(3,
            textInput(inputId = "title", label = "Titel der Karte:", value = "PLZ / AGS Karte"),
-           numericInput(inputId = "titletext", label = "Schriftgöße Titel:", min = 6, max = 50, value = 12),
+           numericInput(inputId = "titletext", label = "Schriftgröße Titel:", min = 6, max = 50, value = 12),
            textInput(inputId = "legtitle", label = "Titel der Legende:", value = "Legende"),
-           numericInput(inputId = "legtext", label = "Schriftgöße Legendentitel:", min = 6, max = 50, value = 12),
+           numericInput(inputId = "legtext", label = "Schriftgröße Legendentitel:", min = 6, max = 50, value = 12),
            checkboxInput(inputId = "showlegend", label = "Legende einblenden", value = TRUE),
            selectInput("color_choice", "Farbe:",
                                        choices=c("blau", "rot", 
