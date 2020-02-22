@@ -325,7 +325,7 @@ server <- function(input, output) {
                         input$titletext,
                         input$legtext)},
   sizePolicy = sizeGrowthRatio(width =
-                                 400, height = 700, growthRate = 1.4))
+                                 700, height = 700, growthRate = 1.4))
   
   
   output$downloadPNG <- downloadHandler(
